@@ -1,0 +1,505 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+            color: #333;
+        }
+
+        header {
+            background: #243b55;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+
+        .sidebar {
+            width: 230px;
+            background: #141e30;
+            padding: 25px 15px;
+            color: white;
+        }
+
+        .sidebar h3 {
+            margin-bottom: 25px;
+        }
+
+        .sidebar button {
+            width: 100%;
+            padding: 13px;
+            margin-bottom: 10px;
+            border: none;
+            background: transparent;
+            color: white;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .sidebar button:hover,
+        .sidebar button.active {
+            background: #344e70;
+        }
+
+        main {
+            flex: 1;
+            padding: 30px;
+            min-width: 0;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #243b55;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px #ddd;
+        }
+
+        .card h3 {
+            color: #777;
+            font-size: 15px;
+        }
+
+        .card p {
+            font-size: 30px;
+            font-weight: bold;
+            margin-top: 12px;
+            color: #243b55;
+        }
+
+        input, select {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 5px;
+        }
+
+        input {
+            max-width: 100%;
+        }
+
+        .btn {
+            background: #243b55;
+            color: white;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #3c638e;
+        }
+
+        .danger {
+            background: #dc3545;
+        }
+
+        .success {
+            background: #198754;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px #ddd;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #243b55;
+            color: white;
+        }
+
+        .form-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-box input {
+            width: 220px;
+        }
+
+        @media(max-width: 700px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .sidebar button {
+                width: auto;
+                display: inline-block;
+            }
+
+            main {
+                padding: 15px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+
+            .table-wrap {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>📚 Library Management System</h1>
+    <p>Manage Books, Students and Library Records</p>
+</header>
+
+<div class="container">
+
+    <nav class="sidebar">
+        <h3>MENU</h3>
+        <button class="active" onclick="showPage('dashboard',this)">🏠 Dashboard</button>
+        <button onclick="showPage('books',this)">📚 Manage Books</button>
+        <button onclick="showPage('issue',this)">📖 Issue Books</button>
+        <button onclick="showPage('records',this)">📋 Issue Records</button>
+    </nav>
+
+    <main>
+
+        <!-- Dashboard -->
+        <section id="dashboard" class="page active">
+            <h2>Dashboard</h2>
+
+            <div class="cards">
+                <div class="card">
+                    <h3>Total Books</h3>
+                    <p id="totalBooks">0</p>
+                </div>
+
+                <div class="card">
+                    <h3>Available Books</h3>
+                    <p id="availableBooks">0</p>
+                </div>
+
+                <div class="card">
+                    <h3>Issued Books</h3>
+                    <p id="issuedBooks">0</p>
+                </div>
+            </div>
+
+            <h2>Welcome to Library Management</h2>
+            <p>Use the menu to manage books, issue books and view records.</p>
+        </section>
+
+        <!-- Manage Books -->
+        <section id="books" class="page">
+            <h2>Manage Books</h2>
+
+            <div class="form-box">
+                <h3>Add New Book</h3>
+                <input id="bookTitle" placeholder="Book Title">
+                <input id="bookAuthor" placeholder="Author Name">
+                <input id="bookCategory" placeholder="Category">
+                <button class="btn" onclick="addBook()">Add Book</button>
+            </div>
+
+            <input id="searchBook" placeholder="Search books..."
+                   oninput="displayBooks()">
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="bookList"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Issue Books -->
+        <section id="issue" class="page">
+            <h2>Issue Books</h2>
+
+            <div class="form-box">
+                <h3>Issue a Book</h3>
+                <input id="studentName" placeholder="Student Name">
+                <input id="studentId" placeholder="Student ID">
+
+                <select id="selectBook">
+                    <option value="">Select Book</option>
+                </select>
+
+                <button class="btn" onclick="issueBook()">Issue Book</button>
+            </div>
+        </section>
+
+        <!-- Records -->
+        <section id="records" class="page">
+            <h2>Book Issue Records</h2>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Student ID</th>
+                        <th>Book</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="recordList"></tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script>
+    let books = JSON.parse(localStorage.getItem("books")) || [
+        {id: 1, title: "HTML and CSS", author: "Jon Duckett", category: "Programming", issued: false},
+        {id: 2, title: "JavaScript", author: "David Flanagan", category: "Programming", issued: false},
+        {id: 3, title: "Python Basics", author: "Eric Matthes", category: "Programming", issued: false}
+    ];
+
+    let records = JSON.parse(localStorage.getItem("records")) || [];
+
+    function saveData() {
+        localStorage.setItem("books", JSON.stringify(books));
+        localStorage.setItem("records", JSON.stringify(records));
+    }
+
+    function showPage(page, btn) {
+        document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+        document.getElementById(page).classList.add("active");
+
+        document.querySelectorAll(".sidebar button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        refresh();
+    }
+
+    function addBook() {
+        let title = document.getElementById("bookTitle").value.trim();
+        let author = document.getElementById("bookAuthor").value.trim();
+        let category = document.getElementById("bookCategory").value.trim();
+
+        if (!title || !author || !category) {
+            alert("Please fill all book details!");
+            return;
+        }
+
+        books.push({
+            id: books.length ? Math.max(...books.map(b => b.id)) + 1 : 1,
+            title, author, category, issued: false
+        });
+
+        saveData();
+        document.getElementById("bookTitle").value = "";
+        document.getElementById("bookAuthor").value = "";
+        document.getElementById("bookCategory").value = "";
+
+        refresh();
+        alert("Book added successfully!");
+    }
+
+    function displayBooks() {
+        let search = document.getElementById("searchBook").value.toLowerCase();
+
+        let filtered = books.filter(b =>
+            b.title.toLowerCase().includes(search) ||
+            b.author.toLowerCase().includes(search) ||
+            b.category.toLowerCase().includes(search)
+        );
+
+        document.getElementById("bookList").innerHTML = filtered.map(b => `
+        <tr>
+            <td>${b.id}</td>
+            <td>${escapeHTML(b.title)}</td>
+            <td>${escapeHTML(b.author)}</td>
+            <td>${escapeHTML(b.category)}</td>
+            <td>${b.issued ? "Issued" : "Available"}</td>
+            <td>
+                <button class="btn danger" onclick="deleteBook(${b.id})">Delete</button>
+            </td>
+        </tr>
+    `).join("");
+    }
+
+    function deleteBook(id) {
+        let book = books.find(b => b.id === id);
+        if (book.issued) {
+            alert("Return this book before deleting it!");
+            return;
+        }
+
+        if (!confirm("Delete this book?")) return;
+
+        books = books.filter(b => b.id !== id);
+        saveData();
+        refresh();
+    }
+
+    function updateSelect() {
+        let select = document.getElementById("selectBook");
+        select.innerHTML = '<option value="">Select Book</option>';
+
+        books.filter(b => !b.issued).forEach(b => {
+            let option = document.createElement("option");
+            option.value = b.id;
+            option.textContent = b.title;
+            select.appendChild(option);
+        });
+    }
+
+    function issueBook() {
+        let name = document.getElementById("studentName").value.trim();
+        let studentId = document.getElementById("studentId").value.trim();
+        let bookId = Number(document.getElementById("selectBook").value);
+
+        let book = books.find(b => b.id === bookId);
+
+        if (!name || !studentId || !book) {
+            alert("Please enter student details and select a book!");
+            return;
+        }
+
+        if (book.issued) {
+            alert("Book is already issued!");
+            return;
+        }
+
+        book.issued = true;
+
+        records.push({
+            student: name,
+            studentId,
+            bookId: book.id,
+            book: book.title,
+            date: new Date().toLocaleDateString()
+        });
+
+        saveData();
+
+        document.getElementById("studentName").value = "";
+        document.getElementById("studentId").value = "";
+
+        refresh();
+        alert("Book issued successfully!");
+    }
+
+    function displayRecords() {
+        document.getElementById("recordList").innerHTML = records.map((r, i) => `
+        <tr>
+            <td>${escapeHTML(r.student)}</td>
+            <td>${escapeHTML(r.studentId)}</td>
+            <td>${escapeHTML(r.book)}</td>
+            <td>${escapeHTML(r.date)}</td>
+            <td>
+                <button class="btn success" onclick="returnBook(${i})">Return</button>
+            </td>
+        </tr>
+    `).join("");
+    }
+
+    function returnBook(index) {
+        let record = records[index];
+        let book = books.find(b => b.id === record.bookId);
+
+        if (book) book.issued = false;
+
+        records.splice(index, 1);
+        saveData();
+        refresh();
+
+        alert("Book returned successfully!");
+    }
+
+    function escapeHTML(value) {
+        return String(value).replace(/[&<>"']/g, char => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[char]);
+    }
+
+    function refresh() {
+        document.getElementById("totalBooks").textContent = books.length;
+        document.getElementById("availableBooks").textContent =
+            books.filter(b => !b.issued).length;
+        document.getElementById("issuedBooks").textContent =
+            books.filter(b => b.issued).length;
+
+        displayBooks();
+        updateSelect();
+        displayRecords();
+    }
+
+    refresh();
+</script>
+
+</body>
+</html>
